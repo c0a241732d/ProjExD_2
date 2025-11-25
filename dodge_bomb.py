@@ -35,18 +35,22 @@ def gameover(screen: pg.Surface) -> None:
     戻り値：なし
     ゲームオーバーになったときにゲームオーバー画面に切り替える
     """
+    # 
     bs_img = pg.Surface((WIDTH, HEIGHT))
-    pg.draw.rect(bs_img, (0, 0, 0), (0, 0, WIDTH, HEIGHT))
-    bs_img.set_alpha(100)
-    go_img = pg.font.Font(None, 80)
-    go_txt = go_img.render("Game Over", True, (255, 255, 255))
-    bs_img.blit(go_txt, [450, 325])
+    pg.draw.rect(bs_img, (0, 0, 0), (0, 0, WIDTH, HEIGHT))  # 黒い四角を描写
+    bs_img.set_alpha(100)  # 透明度設定
+    # 文字
+    go_img = pg.font.Font(None, 80)  # フォントサイズ
+    go_txt = go_img.render("Game Over", True, (255, 255, 255))  # フォント色など
+    bs_img.blit(go_txt, [450, 325])  # フォント位置
+    # こうかとん
     gokk_img = pg.image.load("fig/8.png")
-    bs_img.blit(gokk_img, [400, 300])
-    bs_img.blit(gokk_img, [760, 300])
+    bs_img.blit(gokk_img, [400, 300])  # こうかとん位置
+    bs_img.blit(gokk_img, [760, 300])  # こうかとん位置
+
     screen.blit(bs_img, [0, 0])
     pg.display.update()
-    time.sleep(5)
+    time.sleep(5)  # 5秒表示
 
 
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
@@ -56,21 +60,22 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     時間とともに爆弾がでかくなり、速くなる
     """
     bb_imgs = []
-    for r in range(1, 11):
+
+    for r in range(1, 11):  # 爆弾の設定
         bb_img = pg.Surface((20*r, 20*r))
-        pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
+        pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)  # 赤色の爆弾
         bb_img.set_colorkey((0, 0, 0))
         bb_imgs.append(bb_img)
-    bb_accs = [a for a in range(1, 11)]
+    bb_accs = [a for a in range(1, 11)]  # 爆弾の加速度
     return bb_imgs, bb_accs
 
+# 演習3途中
+# def get_kk_omgs() -> dict[tuple[int, int], pg.Surface]:
+#     kk_img = pg.image.load("fig/3.png")
 
-def get_kk_omgs() -> dict[tuple[int, int], pg.Surface]:
-    kk_img = pg.image.load("fig/3.png")
-    
-    kk_dict = {
-        (0, 0): rotozoom(pg.transform.rotozoom())
-    }
+#     kk_dict = {
+#         (0, 0): rotozoom(pg.transform.rotozoom())
+#     }
 
 
 def main():
@@ -81,15 +86,15 @@ def main():
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
     bb_img = pg.Surface((20, 20))
-    pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)
-    bb_img.set_colorkey((0, 0, 0))
+    pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)  # 赤色で半径10の爆弾
+    bb_img.set_colorkey((0, 0, 0))  # 黒色を透過
     bb_rct = bb_img.get_rect()
-    bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
+    bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)  # 爆弾の位置を乱数で決定
     clock = pg.time.Clock()
     tmr = 0
     vx = 5
     vy = 5
-    bb_imgs, bb_accs = init_bb_imgs()
+    bb_imgs, bb_accs = init_bb_imgs()  # init_bb_imgs関数を呼び出す
     
     while True:
         for event in pg.event.get():
@@ -98,7 +103,7 @@ def main():
 
         if kk_rct.colliderect(bb_rct):
             print("ゲームオーバー")
-            gameover(screen)
+            gameover(screen)  # gameover関数を引数screenで呼び出す
             return 
             
         screen.blit(bg_img, [0, 0]) 
@@ -119,19 +124,20 @@ def main():
 
         kk_rct.move_ip(sum_mv)
 
-        if cheak_bound(kk_rct) != (True, True):
+        if cheak_bound(kk_rct) != (True, True):  # 関数cheak_boundを引数kk_rctで呼び出す
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)
-        yoko, tate = cheak_bound(bb_rct)
+        yoko, tate = cheak_bound(bb_rct)  # 関数cheak_boundを引数bb_rctで呼び出す
 
         if not yoko:
             vx *= -1
         if not tate:
             vy *= -1
-
+        # 加速度
         avx = vx*bb_accs[min(tmr//500, 9)]
         avy = vy*bb_accs[min(tmr//500, 9)]
         bb_rct.move_ip(avx, avy)
+        # width, heightの更新
         bb_img = bb_imgs[min(tmr//500, 9)]
         bb_rct.width = bb_img.get_rect().width
         bb_rct.height = bb_img.get_rect().height
