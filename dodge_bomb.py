@@ -64,7 +64,7 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     for r in range(1, 11):  # 爆弾の設定
         bb_img = pg.Surface((20*r, 20*r))
         pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)  # 赤色の爆弾
-        bb_img.set_colorkey((0, 0, 0))
+        bb_img.set_colorkey((0, 0, 0))  # 黒色を透過
         bb_imgs.append(bb_img)
     bb_accs = [a for a in range(1, 11)]  # 爆弾の加速度
     return bb_imgs, bb_accs
