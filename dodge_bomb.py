@@ -2,9 +2,7 @@ import os
 import random
 import sys
 import time
-
 import pygame as pg
-
 
 
 WIDTH, HEIGHT = 1100, 650
@@ -15,6 +13,7 @@ DELTA = {
             pg.K_LEFT: (-5, 0),
             pg.K_RIGHT: (5, 0)
         }
+
 
 def cheak_bound(rct: pg.Rect) -> tuple[bool, bool]:
     """
@@ -65,6 +64,15 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     bb_accs = [a for a in range(1, 11)]
     return bb_imgs, bb_accs
 
+
+def get_kk_omgs() -> dict[tuple[int, int], pg.Surface]:
+    kk_img = pg.image.load("fig/3.png")
+    
+    kk_dict = {
+        (0, 0): rotozoom(pg.transform.rotozoom())
+    }
+
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -92,7 +100,6 @@ def main():
             print("ゲームオーバー")
             gameover(screen)
             return 
-        
             
         screen.blit(bg_img, [0, 0]) 
         key_lst = pg.key.get_pressed()
@@ -109,15 +116,19 @@ def main():
             if key_lst[k]:
                 sum_mv[0] += mv[0]  # 横方向の移動量 
                 sum_mv[1] += mv[1]  # 縦方向の移動量
+
         kk_rct.move_ip(sum_mv)
+
         if cheak_bound(kk_rct) != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)
         yoko, tate = cheak_bound(bb_rct)
+
         if not yoko:
             vx *= -1
         if not tate:
             vy *= -1
+
         avx = vx*bb_accs[min(tmr//500, 9)]
         avy = vy*bb_accs[min(tmr//500, 9)]
         bb_rct.move_ip(avx, avy)
