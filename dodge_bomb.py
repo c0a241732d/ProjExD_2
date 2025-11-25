@@ -8,6 +8,25 @@ import pygame as pg
 
 WIDTH, HEIGHT = 1100, 650
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+DELTA = {
+            pg.K_UP: (0, -5),
+            pg.K_DOWN: (0, 5),
+            pg.K_LEFT: (-5, 0),
+            pg.K_RIGHT: (5, 0)
+        }
+
+def cheak_bound(rct: pg.Rect) -> tuple[bool, bool]:
+    """
+    引数：こうかとんRectかばくだんRect
+    戻り値：タプル（横方向判定結果, 縦方向判定結果）
+    画面内ならTrue, 画面外ならFalse
+    """
+    yoko, tate = True, True
+    if rct.left < 0 or WIDTH < rct.right:  # 横方向はみだしチェック
+        yoko = False
+    if rct.top < 0 or HEIGHT < rct.bottom:  # 縦方向はみだしチェック
+        tate = False
+    return yoko, tate
 
 
 def main():
@@ -26,23 +45,14 @@ def main():
     tmr = 0
     vx = 5
     vy = 5
-
-
+    
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
         screen.blit(bg_img, [0, 0]) 
-
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
-        DELTA = {
-            pg.K_UP: (0, -5),
-            pg.K_DOWN: (0, 5),
-            pg.K_LEFT: (-5, 0),
-            pg.K_RIGHT: (5, 0)
-        }
-
         # if key_lst[pg.K_UP]:
         #     sum_mv[1] -= 5
         # if key_lst[pg.K_DOWN]:
@@ -51,17 +61,20 @@ def main():
         #     sum_mv[0] -= 5
         # if key_lst[pg.K_RIGHT]:
         #     sum_mv[0] += 5
-
         for k, mv in DELTA.items():
             if key_lst[k]:
                 sum_mv[0] += mv[0]  # 横方向の移動量 
                 sum_mv[1] += mv[1]  # 縦方向の移動量
-
-        
-
         kk_rct.move_ip(sum_mv)
-        bb_rct.move_ip(vx, vy)
+        if cheak_bound(kk_rct) != (True, True):
+            kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)
+        yoko, tate = cheak_bound(bb_rct)
+        if not yoko:
+            vx *= -1
+        if not tate:
+            vy *= -1
+        bb_rct.move_ip(vx, vy)
         screen.blit(bb_img, bb_rct)
         pg.display.update()
         tmr += 1
