@@ -31,22 +31,34 @@ def cheak_bound(rct: pg.Rect) -> tuple[bool, bool]:
 
 
 def gameover(screen: pg.Surface) -> None:
+    """
+    引数：元の画面
+    戻り値：なし
+    ゲームオーバーになったときにゲームオーバー画面に切り替える
+    """
     bs_img = pg.Surface((WIDTH, HEIGHT))
     pg.draw.rect(bs_img, (0, 0, 0), (0, 0, WIDTH, HEIGHT))
     bs_img.set_alpha(100)
-
     go_img = pg.font.Font(None, 80)
     go_txt = go_img.render("Game Over", True, (255, 255, 255))
     bs_img.blit(go_txt, [450, 325])
-
     gokk_img = pg.image.load("fig/8.png")
     bs_img.blit(gokk_img, [400, 300])
     bs_img.blit(gokk_img, [760, 300])
-
     screen.blit(bs_img, [0, 0])
     pg.display.update()
     time.sleep(5)
-    
+
+
+def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+    bb_imgs = []
+    for r in range(1, 11):
+        bb_img = pg.Surface((20*r, 20*r))
+        pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
+        bb_img.set_colorkey((0, 0, 0))
+        bb_imgs.append(bb_img)
+    bb_accs = [a for a in range(1, 11)]
+    return bb_imgs, bb_accs
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -64,6 +76,7 @@ def main():
     tmr = 0
     vx = 5
     vy = 5
+    bb_imgs, bb_accs = init_bb_imgs()
     
     while True:
         for event in pg.event.get():
@@ -100,7 +113,12 @@ def main():
             vx *= -1
         if not tate:
             vy *= -1
-        bb_rct.move_ip(vx, vy)
+        avx = vx*bb_accs[min(tmr//500, 9)]
+        avy = vy*bb_accs[min(tmr//500, 9)]
+        bb_rct.move_ip(avx, avy)
+        bb_img = bb_imgs[min(tmr//500, 9)]
+        bb_rct.width = bb_img.get_rect().width
+        bb_rct.height = bb_img.get_rect().height
         screen.blit(bb_img, bb_rct)
         pg.display.update()
         tmr += 1
